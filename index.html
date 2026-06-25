@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d12" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Manifold — every equation at five levels</title>
+    <meta
+      name="description"
+      content="Manifold: 33 of the most consequential equations in human history, each explained at five selectable levels — from curious visitor to researcher."
+    />
+    <link rel="canonical" href="/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Manifold" />
+    <!-- Open Graph / Twitter defaults (per-route values set at runtime) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Manifold" />
+    <meta property="og:title" content="Manifold — every equation at five levels" />
+    <meta
+      property="og:description"
+      content="The equations that remade the world, each explained at five selectable levels — from curious visitor to researcher."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Fonts: humanist serif for prose, grotesk for UI, mono for symbols -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Set theme before first paint to avoid a flash of the wrong theme.
+      (function () {
+        try {
+          var stored = localStorage.getItem('eq:theme');
+          var pref = stored && stored !== 'system'
+            ? stored
+            : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', pref);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

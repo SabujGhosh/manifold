@@ -1,0 +1,15 @@
+node_modules
+dist
+dist-ssr
+*.local
+*.local.json
+.DS_Store
+coverage
+.vite
+*.log
+
+# Local Claude Code config (machine-specific permission allowlist)
+.claude/
+
+# Generated knowledge-graph artifacts + cache (regenerable; leak local paths)
+graphify-out/

@@ -1,0 +1,33 @@
+/* Make KaTeX sit harmoniously with the serif prose and adapt to theme. */
+.katex {
+  color: rgb(var(--ink));
+  font-size: 1.05em;
+}
+
+/* Display equations: breathing room + a subtle container so they read as heroes. */
+.math-block {
+  margin: 1.25rem 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: rgb(var(--surface-2) / 0.5);
+  border: 1px solid rgb(var(--border));
+  border-radius: 0.75rem;
+}
+.math-block .katex-display {
+  margin: 0;
+}
+.math-block .katex {
+  font-size: 1.18em;
+}
+
+/* The hero equation on an equation page should be large and unboxed. */
+.math-hero .katex {
+  font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+}
+
+.katex-error {
+  color: rgb(220 38 38);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85em;
+}
