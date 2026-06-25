@@ -31,31 +31,80 @@ export default function EMWave({ params }: VizProps) {
     const midY = cssH / 2;
     const t = tRef.current;
     const k = freq * 0.05;
+    const A = cssH * 0.3; // field amplitude in px
+    // Oblique screen direction for the B axis (z, "into the page"): up-and-right,
+    // foreshortened — so B reads as perpendicular to the vertical E and to x.
+    const dzx = 0.72;
+    const dzy = -0.42;
+    const phaseAt = (x: number) => k * x - t * freq * 2;
 
-    // propagation axis
+    // propagation axis (x = direction of travel)
     ctx.strokeStyle = cssVar('--ink-faint', 0.5);
     ctx.beginPath(); ctx.moveTo(0, midY); ctx.lineTo(cssW, midY); ctx.stroke();
 
-    // E field (vertical, accent) and B field (skewed, physics color) as projections
-    const drawField = (color: string, vert: boolean) => {
+    // Stems sampling each field — fills the two perpendicular planes so the
+    // 3D structure (E vertical, B into the page) is legible.
+    for (let x = 18; x < cssW; x += 26) {
+      const s = Math.sin(phaseAt(x));
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = cssVar('--accent', 0.3);
+      ctx.beginPath(); ctx.moveTo(x, midY); ctx.lineTo(x, midY - A * s); ctx.stroke();
+      ctx.strokeStyle = cssVar('--field-physics', 0.3);
+      ctx.beginPath(); ctx.moveTo(x, midY); ctx.lineTo(x + A * s * dzx, midY + A * s * dzy); ctx.stroke();
+    }
+
+    // E wave (vertical plane)
+    ctx.strokeStyle = cssVar('--accent');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x <= cssW; x += 2) {
+      const y = midY - A * Math.sin(phaseAt(x));
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // B wave (depth plane, oblique)
+    ctx.strokeStyle = cssVar('--field-physics');
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x <= cssW; x += 2) {
+      const b = A * Math.sin(phaseAt(x));
+      const px = x + b * dzx;
+      const py = midY + b * dzy;
+      x === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Axis triad (bottom-left): E up, B into page, c forward — all mutually ⟂.
+    const ox = 42;
+    const oy = cssH - 26;
+    const L = 24;
+    const axis = (dx: number, dy: number, color: string, label: string) => {
+      const ex = ox + dx * L;
+      const ey = oy + dy * L;
       ctx.strokeStyle = color;
+      ctx.fillStyle = color;
       ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ex, ey); ctx.stroke();
+      const m = Math.hypot(dx, dy) || 1;
+      const ax = dx / m;
+      const ay = dy / m;
       ctx.beginPath();
-      for (let x = 0; x <= cssW; x += 3) {
-        const amp = Math.sin(k * x - t * freq * 2) * cssH * 0.32;
-        const y = vert ? midY - amp : midY - amp * 0.45; // B drawn shallower (into-page suggestion)
-        const xx = vert ? x : x + amp * 0.0;
-        x === 0 ? ctx.moveTo(xx, y) : ctx.lineTo(xx, y);
-      }
-      ctx.stroke();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(ex - ax * 6 - ay * 4, ey - ay * 6 + ax * 4);
+      ctx.lineTo(ex - ax * 6 + ay * 4, ey - ay * 6 - ax * 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.font = '11px ui-sans-serif, system-ui';
+      ctx.fillText(label, ex + ax * 6 - 3, ey + ay * 6 + 4);
     };
-    drawField(cssVar('--accent'), true); // E
-    drawField(cssVar('--field-physics'), false); // B
+    axis(1, 0, cssVar('--ink-faint'), 'c');
+    axis(0, -1, cssVar('--accent'), 'E');
+    axis(dzx, dzy, cssVar('--field-physics'), 'B');
 
     ctx.font = '12px ui-sans-serif, system-ui';
     ctx.fillStyle = cssVar('--accent'); ctx.fillText('E (electric)', 10, 16);
-    ctx.fillStyle = cssVar('--field-physics'); ctx.fillText('B (magnetic ⟂)', 10, 32);
-    ctx.fillStyle = cssVar('--ink-faint'); ctx.fillText('→ propagation (speed c)', cssW - 160, midY + 18);
+    ctx.fillStyle = cssVar('--field-physics'); ctx.fillText('B (magnetic, ⟂)', 10, 32);
   };
 
   useAnimationFrame(() => { tRef.current += 0.05; draw(); }, playing && !reduced);

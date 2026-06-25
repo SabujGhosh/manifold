@@ -20,16 +20,35 @@ function travelTime(path: (t: number) => { x: number; y: number }, g = 9.8): num
   return T;
 }
 
+// Fit a brachistochrone cycloid x=R(θ−sinθ), y=R(1−cosθ) through A=(0,0) and
+// B=(xB,yB). Solve (1−cosθ_B)/(θ_B−sinθ_B) = yB/xB (monotonic in θ_B), then R.
+function fitCycloid(xB: number, yB: number) {
+  const target = yB / xB;
+  let lo = 1e-4;
+  let hi = 2 * Math.PI - 1e-4;
+  for (let i = 0; i < 80; i++) {
+    const mid = (lo + hi) / 2;
+    const ratio = (1 - Math.cos(mid)) / (mid - Math.sin(mid)); // decreasing: +∞ → 0
+    if (ratio > target) lo = mid;
+    else hi = mid;
+  }
+  const thetaB = (lo + hi) / 2;
+  const R = xB / (thetaB - Math.sin(thetaB));
+  return { thetaB, R };
+}
+
 export default function Brachistochrone(_: VizProps) {
   void _;
   // domain: A=(0,0), B=(1,0.6) with y downward
-  const straight = (t: number) => ({ x: t, y: 0.6 * t });
-  const steep = (t: number) => ({ x: t, y: 0.6 * Math.sqrt(t) }); // drop fast then flat
-  // cycloid-like (parametric brachistochrone fit to endpoints, approximate)
+  const xB = 1;
+  const yB = 0.6;
+  const straight = (t: number) => ({ x: xB * t, y: yB * t });
+  const steep = (t: number) => ({ x: xB * t, y: yB * Math.sqrt(t) }); // drop fast then flat
+  // True brachistochrone: a cycloid through both endpoints (reaches B at t=1).
+  const { thetaB, R } = fitCycloid(xB, yB);
   const cycloid = (t: number) => {
-    const theta = t * 1.6;
-    const r = 0.34;
-    return { x: r * (theta - Math.sin(theta)), y: r * (1 - Math.cos(theta)) };
+    const theta = thetaB * t;
+    return { x: R * (theta - Math.sin(theta)), y: R * (1 - Math.cos(theta)) };
   };
 
   const paths = [

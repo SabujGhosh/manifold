@@ -177,12 +177,12 @@ A key dynamical payoff (via Yoccoz): MLC implies **density of hyperbolicity** fo
   viz: {
     component: 'Mandelbrot',
     kind: 'interactive',
-    defaultParams: { centerX: -0.5, centerY: 0, zoom: 1, maxIter: 200 },
-    caption: 'A zoomable escape-time render of z → z² + c. Click or scroll to dive in; the real-axis slice is marked to show its correspondence with the logistic map.',
+    defaultParams: { centerX: -0.5, centerY: 0, zoom: 1, maxIter: 12 },
+    caption: 'A zoomable escape-time render of z → z² + c. It opens at just a few iterations — drag “Max iterations” up and watch the set emerge from a blob into its filigreed boundary. Click or scroll to dive in; the real-axis slice is marked to show its correspondence with the logistic map.',
     whatToTry: [
+      'Drag max iterations up from the start and watch the cardioid and bulbs sharpen into existence.',
       'Zoom into the boundary and find a miniature copy of the whole set.',
       'Follow the real axis and connect the bulbs to the logistic map’s period-doublings.',
-      'Increase max iterations to resolve the fine filaments near the boundary.',
     ],
   },
   primarySources: [

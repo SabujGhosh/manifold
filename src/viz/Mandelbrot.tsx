@@ -18,7 +18,7 @@ export default function Mandelbrot({ params }: VizProps) {
     y: num(params.centerY, 0),
   });
   const [zoom, setZoom] = useState(num(params.zoom, 1));
-  const [maxIter, setMaxIter] = useState(Math.round(num(params.maxIter, 200)));
+  const [maxIter, setMaxIter] = useState(Math.round(num(params.maxIter, 12)));
   const [showReal, setShowReal] = useState(true);
 
   const render = useCallback(() => {
@@ -135,7 +135,7 @@ export default function Mandelbrot({ params }: VizProps) {
         />
       </div>
       <div className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-        <Slider label="Max iterations" value={maxIter} min={50} max={1000} step={10} onChange={(v) => setMaxIter(Math.round(v))} format={(v) => String(Math.round(v))} />
+        <Slider label="Max iterations" value={maxIter} min={2} max={1000} step={1} onChange={(v) => setMaxIter(Math.round(v))} format={(v) => String(Math.round(v))} />
         <div className="flex items-end gap-4">
           <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted">
             <input type="checkbox" checked={showReal} onChange={(e) => setShowReal(e.target.checked)} className="accent-accent" />

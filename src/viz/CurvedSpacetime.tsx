@@ -21,13 +21,14 @@ export default function CurvedSpacetime({ params }: VizProps) {
         const r = Math.sqrt(dx * dx + dy * dy) + 8;
         return (mass * 2200) / r; // downward displacement (perspective)
       };
-      ctx.strokeStyle = cssVar('--ink-faint', 0.5);
+      ctx.strokeStyle = cssVar('--ink-faint', 0.45);
       ctx.lineWidth = 1;
-      const step = 26;
+      const step = 15; // finer mesh resolves the curvature better
+      const sample = 3; // sub-sample each line finely so warped lines stay smooth
       // horizontal lines
       for (let y = step; y < h; y += step) {
         ctx.beginPath();
-        for (let x = 0; x <= w; x += 6) {
+        for (let x = 0; x <= w; x += sample) {
           const yy = y + well(x, y) * 0.12;
           x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
         }
@@ -36,9 +37,9 @@ export default function CurvedSpacetime({ params }: VizProps) {
       // vertical lines
       for (let x = step; x < w; x += step) {
         ctx.beginPath();
-        for (let y = 0; y <= h; y += 6) {
+        for (let y = 0; y <= h; y += sample) {
           const yy = y + well(x, y) * 0.12;
-          x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+          y === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
         }
         ctx.stroke();
       }
@@ -46,20 +47,27 @@ export default function CurvedSpacetime({ params }: VizProps) {
       ctx.fillStyle = cssVar('--field-relativity');
       ctx.beginPath(); ctx.arc(cx, cy, 8 + mass * 4, 0, Math.PI * 2); ctx.fill();
 
-      // a geodesic / light ray bending past the mass
-      ctx.strokeStyle = cssVar('--accent');
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let x = 0; x <= w; x += 4) {
-        const dx = x - cx;
-        const bend = (mass * 1600) / (dx * dx + 1400);
-        const y = h * 0.2 + (x / w) * 6 + bend;
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
+      // Several geodesics at different impact parameters: the closer a ray
+      // passes, the more it bends — so the deflection differences are visible.
+      const impacts = [22, 48, 80, 120];
+      impacts.forEach((b, i) => {
+        const yBase = cy - b;
+        const amp = (mass * 1500) / b; // deflection toward the mass ∝ 1/impact
+        const widthC = (w * 0.05) ** 2;
+        ctx.strokeStyle = cssVar('--accent', 1 - i * 0.16);
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 3) {
+          const dx = x - cx;
+          const bend = amp / (1 + (dx * dx) / widthC); // bends down, toward the mass
+          const y = yBase + bend;
+          x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
       ctx.fillStyle = cssVar('--ink-faint');
       ctx.font = '11px ui-sans-serif, system-ui';
-      ctx.fillText('light ray bends near the mass (geodesic)', 10, 16);
+      ctx.fillText('light rays bend more the closer they pass (geodesics)', 10, 16);
     },
     [mass],
     0.72,
