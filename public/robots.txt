@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://the-equations.example/sitemap.xml
+Sitemap: https://sabujghosh.github.io/manifold/sitemap.xml

@@ -6,8 +6,11 @@
  * Vite fingerprints asset filenames, so cached assets are safe and a new
  * deploy fetches fresh files on next online visit.
  */
-const CACHE = 'equations-v1';
-const SHELL = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest'];
+// Derive the deploy base from the SW's own scope so caching works whether the
+// app is served from "/" or a subpath like "/manifold/".
+const BASE = new URL(self.registration.scope).pathname; // "/" or "/manifold/"
+const CACHE = 'manifold-v1';
+const SHELL = [BASE, BASE + 'index.html', BASE + 'favicon.svg', BASE + 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -33,10 +36,10 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/', copy));
+          caches.open(CACHE).then((c) => c.put(BASE, copy));
           return res;
         })
-        .catch(() => caches.match('/').then((r) => r || caches.match('/index.html'))),
+        .catch(() => caches.match(BASE).then((r) => r || caches.match(BASE + 'index.html'))),
     );
     return;
   }

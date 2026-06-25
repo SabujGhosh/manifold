@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 export default defineConfig({
+  // Served from https://<user>.github.io/manifold/ — everything is base-relative.
+  // Override with BASE_PATH=/ for root deploys (Vercel/Netlify/custom domain).
+  base: process.env.BASE_PATH ?? '/manifold/',
   plugins: [react()],
   resolve: {
     alias: {
