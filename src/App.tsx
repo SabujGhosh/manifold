@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, NavLink, Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './components/ThemeToggle';
 import { CommandPaletteProvider, useCommandPalette } from './components/CommandPalette';
@@ -23,11 +23,24 @@ const NAV = [
   { to: '/about', label: 'About' },
 ];
 
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `rounded-lg px-3 py-1.5 transition-colors ${
+    isActive ? 'bg-accent-soft text-accent' : 'text-ink-muted hover:bg-surface-2 hover:text-ink'
+  }`;
+
 function Header() {
   const palette = useCommandPalette();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+
+  // Collapse the mobile menu whenever the route changes.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-bg/70 shadow-sm backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4">
         <Link
           to="/"
           aria-label={`${APP_NAME} — home`}
@@ -36,23 +49,16 @@ function Header() {
           <LogoMark size={34} />
           <span>{APP_NAME}</span>
         </Link>
+
+        {/* Desktop nav (present in the a11y tree only ≥ md). */}
         <nav aria-label="Primary" className="font-ui ml-auto hidden items-center gap-1 text-sm md:flex">
           {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              className={({ isActive }) =>
-                `rounded-lg px-3 py-1.5 transition-colors ${
-                  isActive
-                    ? 'bg-accent-soft text-accent'
-                    : 'text-ink-muted hover:bg-surface-2 hover:text-ink'
-                }`
-              }
-            >
+            <NavLink key={n.to} to={n.to} className={navLinkClass}>
               {n.label}
             </NavLink>
           ))}
         </nav>
+
         <button
           type="button"
           onClick={palette.open}
@@ -64,7 +70,57 @@ function Header() {
           <kbd className="hidden rounded border border-border px-1 text-[0.65rem] sm:inline">⌘K</kbd>
         </button>
         <ThemeToggle />
+
+        {/* Hamburger — mobile only. */}
+        <button
+          type="button"
+          onClick={() => setMenuOpen((o) => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav"
+          className="font-ui inline-flex items-center justify-center rounded-lg border border-border bg-surface p-1.5 text-ink-muted shadow-sm transition-colors hover:border-accent/40 hover:text-ink md:hidden"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            {menuOpen ? (
+              <>
+                <line x1="6" y1="6" x2="18" y2="18" />
+                <line x1="6" y1="18" x2="18" y2="6" />
+              </>
+            ) : (
+              <>
+                <line x1="3.5" y1="7" x2="20.5" y2="7" />
+                <line x1="3.5" y1="12" x2="20.5" y2="12" />
+                <line x1="3.5" y1="17" x2="20.5" y2="17" />
+              </>
+            )}
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile nav drawer — present in the a11y tree only < md and when open. */}
+      <nav
+        id="mobile-nav"
+        aria-label="Primary"
+        className={`font-ui overflow-hidden border-t border-border/70 md:hidden ${menuOpen ? 'block' : 'hidden'}`}
+      >
+        <ul className="mx-auto flex max-w-6xl flex-col gap-1 px-3 py-3 text-sm">
+          {NAV.map((n) => (
+            <li key={n.to}>
+              <NavLink
+                to={n.to}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  `block rounded-lg px-3 py-2.5 transition-colors ${
+                    isActive ? 'bg-accent-soft text-accent' : 'text-ink-muted hover:bg-surface-2 hover:text-ink'
+                  }`
+                }
+              >
+                {n.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 }
